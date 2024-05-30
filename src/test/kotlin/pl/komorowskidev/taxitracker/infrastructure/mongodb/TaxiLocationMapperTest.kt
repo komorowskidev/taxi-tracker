@@ -2,31 +2,39 @@ package pl.komorowskidev.taxitracker.infrastructure.mongodb
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import pl.komorowskidev.taxitracker.domain.model.TaxiLocation
-import java.math.BigDecimal
-import java.time.Instant
+import pl.komorowskidev.taxitracker.testutils.TestDataFactory
 
 class TaxiLocationMapperTest {
     private val mapper = TaxiLocationMapper()
+    private val testDataFactory = TestDataFactory()
 
     @Test
-    fun `should map Taxi to TaxiEntity correctly`() {
+    fun `toEntity should map TaxiLocation to TaxiLocationEntity correctly`() {
         // Given
-        val taxiLocation =
-            TaxiLocation(
-                id = "taxi123",
-                latitude = BigDecimal("52.237049"),
-                longitude = BigDecimal("21.017532"),
-                timestamp = Instant.parse("2023-04-20T10:15:30Z"),
-            )
+        val taxiLocation = testDataFactory.createTaxiLocation()
 
         // When
         val entity = mapper.toEntity(taxiLocation)
 
         // Then
-        assertEquals(taxiLocation.id, entity.id)
+        assertEquals(taxiLocation.taxiId, entity.taxiId)
         assertEquals(taxiLocation.latitude, entity.latitude)
         assertEquals(taxiLocation.longitude, entity.longitude)
         assertEquals(taxiLocation.timestamp, entity.timestamp)
+    }
+
+    @Test
+    fun `toDomain should map TaxiLocationEntity to TaxiLocation correctly`() {
+        // Given
+        val entity = testDataFactory.createTaxiLocationEntity()
+
+        // When
+        val taxiLocation = mapper.toDomain(entity)
+
+        // Then
+        assertEquals(entity.taxiId, taxiLocation.taxiId)
+        assertEquals(entity.latitude, taxiLocation.latitude)
+        assertEquals(entity.longitude, taxiLocation.longitude)
+        assertEquals(entity.timestamp, taxiLocation.timestamp)
     }
 }
