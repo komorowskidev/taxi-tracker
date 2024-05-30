@@ -5,12 +5,19 @@ import pl.komorowskidev.taxitracker.domain.model.TaxiLocation
 
 @Component
 class TaxiLocationMapper {
-    fun toEntity(taxiLocation: TaxiLocation): TaxiLocationEntity {
-        return TaxiLocationEntity(
-            id = taxiLocation.id,
+    fun toEntity(taxiLocation: TaxiLocation) =
+        TaxiLocationEntity(
+            taxiId = taxiLocation.taxiId,
             latitude = taxiLocation.latitude,
             longitude = taxiLocation.longitude,
             timestamp = taxiLocation.timestamp,
         )
-    }
+
+    fun toDomain(taxiLocationEntity: TaxiLocationEntity) =
+        TaxiLocation(
+            taxiId = taxiLocationEntity.taxiId,
+            latitude = taxiLocationEntity.latitude,
+            longitude = taxiLocationEntity.longitude,
+            timestamp = taxiLocationEntity.timestamp,
+        )
 }

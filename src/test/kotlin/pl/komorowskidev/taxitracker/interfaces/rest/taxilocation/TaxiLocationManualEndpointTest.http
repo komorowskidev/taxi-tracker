@@ -1,0 +1,7 @@
+###
+# Get taxi locations by id and time range should return empty list when DB is empty
+GET http://localhost:8080/api/taxi-locations?taxi-id=taxiId&start-time=2023-05-10T00:00:00Z&end-time=2023-05-30T00:00:00Z
+
+###
+# Get taxi locations by id and time range (end-time before start-time) should response with BAD REQUEST
+GET http://localhost:8080/api/taxi-locations?taxi-id=taxiId&start-time=2023-05-30T00:00:00Z&end-time=2023-05-10T00:00:00Z
