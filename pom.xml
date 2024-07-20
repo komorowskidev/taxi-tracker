@@ -105,6 +105,10 @@
 				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<argLine>-XX:+EnableDynamicAgentLoading</argLine>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*IT.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 		</plugins>

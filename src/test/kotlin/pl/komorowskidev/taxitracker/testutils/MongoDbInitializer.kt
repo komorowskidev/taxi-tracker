@@ -10,13 +10,14 @@ import org.testcontainers.utility.DockerImageName
 @Testcontainers
 class MongoDbInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
     companion object {
-        private val container = MongoDBContainer(DockerImageName.parse("mongo:4.0.10"))
+        private val container = MongoDBContainer(DockerImageName.parse(DockerImageNameMap.getFullImageName("mongo")))
     }
 
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         container.start()
-        TestPropertyValues.of(
-            "spring.data.mongodb.uri:${container.replicaSetUrl}",
-        ).applyTo(applicationContext.environment)
+        TestPropertyValues
+            .of(
+                "spring.data.mongodb.uri:${container.replicaSetUrl}",
+            ).applyTo(applicationContext.environment)
     }
 }
