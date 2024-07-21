@@ -5,3 +5,7 @@ spring:
 events:
   queues:
     taxi.event.sqs.url: https://url-to-the-real-queue
+
+aws:
+  accessKeyId: noop
+  secretAccessKey: noop
