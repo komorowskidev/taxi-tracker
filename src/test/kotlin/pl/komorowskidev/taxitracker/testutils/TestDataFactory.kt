@@ -1,12 +1,23 @@
 package pl.komorowskidev.taxitracker.testutils
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.util.StdDateFormat
 import pl.komorowskidev.taxitracker.domain.model.TaxiLocation
 import pl.komorowskidev.taxitracker.infrastructure.mongodb.TaxiLocationEntity
 import pl.komorowskidev.taxitracker.interfaces.rest.taxilocation.TaxiLocationDto
+import pl.komorowskidev.taxitracker.interfaces.sqs.taxievent.TaxiEventDto
 import java.math.BigDecimal
 import java.time.Instant
 
 class TestDataFactory {
+    private val mapper = ObjectMapper()
+
+    init {
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        mapper.setDateFormat(StdDateFormat().withColonInTimeZone(true))
+    }
+
     fun createTaxiLocation(
         taxiId: String = "taxiId",
         latitude: BigDecimal = BigDecimal(1.0),
@@ -37,4 +48,22 @@ class TestDataFactory {
             longitude = "15.23456",
             timestamp = "2023-06-20T10:15:30Z",
         )
+
+    fun createTaxiEventDto(taxiId: String = "taxiId") =
+        TaxiEventDto(
+            taxiId = taxiId,
+            latitude = BigDecimal("11.000234"),
+            longitude = BigDecimal("15.23456"),
+            timestamp = Instant.parse("2023-06-20T10:15:30Z"),
+        )
+
+    fun createSqsPayload(taxiEventDto: TaxiEventDto): String =
+        """
+        {
+        "taxiId": "${taxiEventDto.taxiId}",
+        "latitude": "${taxiEventDto.latitude}",
+        "longitude": "${taxiEventDto.longitude}",
+        "timestamp": "${taxiEventDto.timestamp}"
+        }
+        """.trimIndent()
 }

@@ -5,6 +5,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = [MongoDbInitializer::class])
+@ContextConfiguration(initializers = [MongoDbInitializer::class, LocalstackInitializer::class])
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 annotation class TaxiTrackerSpringBootTest
