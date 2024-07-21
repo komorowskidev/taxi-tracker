@@ -25,9 +25,6 @@ class LocalstackInitializer : ApplicationContextInitializer<ConfigurableApplicat
         TestPropertyValues
             .of(
                 "spring.cloud.aws.region.static:${container.region}",
-                "spring.cloud.aws.credentials.access-key:${container.accessKey}",
-                "aws.accessKeyId:${container.accessKey}",
-                "spring.cloud.aws.credentials.secret-key:${container.secretKey}",
                 "spring.cloud.aws.sqs.endpoint:${container.getEndpointOverride(LocalStackContainer.Service.SQS)}",
                 "spring.cloud.aws.region.static:${container.region}",
                 "events.queues.taxi.event.sqs.url:$taxiEventSqsName",
