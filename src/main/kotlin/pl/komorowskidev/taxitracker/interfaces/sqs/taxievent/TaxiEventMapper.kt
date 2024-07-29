@@ -5,7 +5,7 @@ import pl.komorowskidev.taxitracker.domain.model.TaxiLocation
 
 @Component
 class TaxiEventMapper {
-    fun toDomain(taxiEventDto: TaxiEventDto): TaxiLocation =
+    fun toDomain(taxiEventDto: TaxiEventDto) =
         TaxiLocation(
             taxiId = taxiEventDto.taxiId,
             latitude = taxiEventDto.latitude,
