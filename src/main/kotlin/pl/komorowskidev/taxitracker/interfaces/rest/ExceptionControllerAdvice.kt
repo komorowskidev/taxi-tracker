@@ -3,7 +3,7 @@ package pl.komorowskidev.taxitracker.interfaces.rest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import pl.komorowskidev.taxitracker.domain.exceptions.InvalidDateRangeException
+import pl.komorowskidev.taxitracker.common.exceptions.InvalidDateRangeException
 
 @RestControllerAdvice
 class ExceptionControllerAdvice {

@@ -2,7 +2,7 @@ package pl.komorowskidev.taxitracker.domain.service
 
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import pl.komorowskidev.taxitracker.domain.model.TaxiLocationRequest

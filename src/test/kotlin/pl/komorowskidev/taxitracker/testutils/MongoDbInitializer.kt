@@ -15,6 +15,7 @@ class MongoDbInitializer : ApplicationContextInitializer<ConfigurableApplication
 
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         container.start()
+        applicationContext.onClose { container.stop() }
         TestPropertyValues
             .of(
                 "spring.data.mongodb.uri:${container.replicaSetUrl}",

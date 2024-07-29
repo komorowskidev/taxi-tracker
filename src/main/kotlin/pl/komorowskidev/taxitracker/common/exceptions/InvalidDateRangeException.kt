@@ -1,3 +1,3 @@
-package pl.komorowskidev.taxitracker.domain.exceptions
+package pl.komorowskidev.taxitracker.common.exceptions
 
 class InvalidDateRangeException(message: String) : Exception(message)
