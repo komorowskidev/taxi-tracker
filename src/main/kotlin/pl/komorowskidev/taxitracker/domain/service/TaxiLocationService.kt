@@ -6,7 +6,10 @@ import pl.komorowskidev.taxitracker.domain.model.TaxiLocationRequest
 import pl.komorowskidev.taxitracker.domain.ports.TaxiLocationPort
 
 @Service
-class TaxiLocationService(private val taxiLocationPort: TaxiLocationPort, private val taxiLocationValidator: TaxiLocationValidator) {
+class TaxiLocationService(
+    private val taxiLocationPort: TaxiLocationPort,
+    private val taxiLocationValidator: TaxiLocationValidator,
+) {
     fun saveTaxiLocation(taxiLocation: TaxiLocation) {
         taxiLocationPort.save(taxiLocation)
     }

@@ -1,7 +1,7 @@
 package pl.komorowskidev.taxitracker.domain.service
 
 import org.springframework.stereotype.Component
-import pl.komorowskidev.taxitracker.domain.exceptions.InvalidDateRangeException
+import pl.komorowskidev.taxitracker.common.exceptions.InvalidDateRangeException
 import pl.komorowskidev.taxitracker.domain.model.TaxiLocationRequest
 
 @Component
