@@ -12,7 +12,10 @@ import software.amazon.awssdk.services.sqs.SqsClient
 @Testcontainers
 class LocalstackInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
     companion object {
-        private val container = LocalStackContainer(DockerImageName.parse(DockerImageNameMap.getFullImageName("localstack")))
+        private val container =
+            LocalStackContainer(DockerImageName.parse(DockerImageNameMap.getFullImageName("localstack")))
+                .withEnv("AWS_ACCESS_KEY_ID", System.getenv("AWS_ACCESS_KEY_ID") ?: "default_key")
+                .withEnv("AWS_SECRET_ACCESS_KEY", System.getenv("AWS_SECRET_ACCESS_KEY") ?: "default_secret")
     }
 
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
@@ -20,22 +23,11 @@ class LocalstackInitializer : ApplicationContextInitializer<ConfigurableApplicat
         container.start()
         container.execInContainer("awslocal", "sqs", "create-queue", "--queue-name", taxiEventSqsName)
         applicationContext.onClose { container.stop() }
-        println("Localstack environment:")
-        println("S3 endpoint: ${container.getEndpointOverride(LocalStackContainer.Service.S3)}")
-        println("AWS region: ${container.region}")
-        println("AWS access key: ${container.accessKey}")
-        println("AWS secret key: ${container.secretKey}")
 
-        // set properties
         TestPropertyValues
             .of(
                 "spring.cloud.aws.region.static:${container.region}",
-                "spring.cloud.aws.credentials.access-key:${container.accessKey}",
-                "spring.cloud.aws.credentials.secret-key:${container.secretKey}",
-                "aws.accessKeyId:${container.accessKey}",
-                "aws.secretAccessKey:${container.secretKey}",
                 "spring.cloud.aws.sqs.endpoint:${container.getEndpointOverride(LocalStackContainer.Service.SQS)}",
-                "spring.cloud.aws.region.static:${container.region}",
                 "events.queues.taxi.event.sqs.url:$taxiEventSqsName",
             ).applyTo(applicationContext.environment)
 
