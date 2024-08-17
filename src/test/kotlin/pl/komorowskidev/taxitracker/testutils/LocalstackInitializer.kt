@@ -20,6 +20,11 @@ class LocalstackInitializer : ApplicationContextInitializer<ConfigurableApplicat
         container.start()
         container.execInContainer("awslocal", "sqs", "create-queue", "--queue-name", taxiEventSqsName)
         applicationContext.onClose { container.stop() }
+        println("Localstack environment:")
+        println("S3 endpoint: ${container.getEndpointOverride(LocalStackContainer.Service.S3)}")
+        println("AWS region: ${container.region}")
+        println("AWS access key: ${container.accessKey}")
+        println("AWS secret key: ${container.secretKey}")
 
         // set properties
         TestPropertyValues
