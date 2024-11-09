@@ -1,5 +1,6 @@
 package pl.komorowskidev.taxitracker.interfaces.rest.taxilocation
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -9,6 +10,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import pl.komorowskidev.taxitracker.infrastructure.mongodb.TaxiLocationRepository
+import pl.komorowskidev.taxitracker.interfaces.rest.Response
 import pl.komorowskidev.taxitracker.testutils.TaxiTrackerSpringBootTest
 import pl.komorowskidev.taxitracker.testutils.TestDataFactory
 import java.time.Instant
@@ -50,21 +52,24 @@ class TaxiLocationIT {
 
     @Test
     fun `should return taxi locations by given parameters`() {
-        val response: List<TaxiLocationDto> =
+        val response: Response<List<TaxiLocationDto>> =
             checkNotNull(
-                webTestClient.get()
+                webTestClient
+                    .get()
                     .uri(
                         "/api/taxi-locations?taxi-id=$requestedTaxiId&start-time=$requestedTimeStartRange&end-time=$requestedTimeEndRange",
                     ),
-            )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<List<TaxiLocationDto>>()
-                .returnResult().responseBody!!
+            ).exchange()
+                .expectStatus()
+                .isOk
+                .expectBody<Response.Success<List<TaxiLocationDto>>>()
+                .returnResult()
+                .responseBody!!
 
-        assertEquals(2, response.size)
-        val actualTaxiLocationDto1 = response[0]
-        val actualTaxiLocationDto2 = response[1]
+        val data = response.data!!
+        assertEquals(2, data.size)
+        val actualTaxiLocationDto1 = data[0]
+        val actualTaxiLocationDto2 = data[1]
         assertEquals(requestedTaxiId, actualTaxiLocationDto1.taxiId)
         assertEquals(requestedTaxiId, actualTaxiLocationDto2.taxiId)
         assertEquals(firstTimestampInRange, actualTaxiLocationDto1.timestamp)
@@ -73,30 +78,39 @@ class TaxiLocationIT {
 
     @Test
     fun `should return empty list when no taxi locations found by given parameters`() {
-        val response: List<TaxiLocationDto> =
+        val response: Response<List<TaxiLocationDto>> =
             checkNotNull(
-                webTestClient.get()
+                webTestClient
+                    .get()
                     .uri(
                         "/api/taxi-locations?taxi-id=$requestedTaxiId&start-time=$timestampBeforeTaxiLocations&end-time=$timestampBeforeTaxiLocations",
                     ),
-            )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<List<TaxiLocationDto>>()
-                .returnResult().responseBody!!
+            ).exchange()
+                .expectStatus()
+                .isOk
+                .expectBody<Response.Success<List<TaxiLocationDto>>>()
+                .returnResult()
+                .responseBody!!
 
-        assertTrue(response.isEmpty())
+        assertTrue(response.data!!.isEmpty())
     }
 
     @Test
     fun `should response with Bad Request when start-time is after end-time`() {
-        checkNotNull(
-            webTestClient.get()
-                .uri(
-                    "/api/taxi-locations?taxi-id=$requestedTaxiId&start-time=$requestedTimeEndRange&end-time=$requestedTimeStartRange",
-                ),
-        )
-            .exchange()
-            .expectStatus().isBadRequest
+        val response: Response<List<TaxiLocationDto>> =
+            checkNotNull(
+                webTestClient
+                    .get()
+                    .uri(
+                        "/api/taxi-locations?taxi-id=$requestedTaxiId&start-time=$requestedTimeEndRange&end-time=$requestedTimeStartRange",
+                    ),
+            ).exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectBody<Response.Error<List<TaxiLocationDto>>>()
+                .returnResult()
+                .responseBody!!
+
+        assertThat(response.errorMessage).isInstanceOf(String::class.java)
     }
 }
