@@ -14,8 +14,12 @@ class TaxiLocationService(
         taxiLocationPort.save(taxiLocation)
     }
 
-    fun getTaxiLocations(taxiLocationRequest: TaxiLocationRequest): List<TaxiLocation> {
-        taxiLocationValidator.validate(taxiLocationRequest)
-        return taxiLocationPort.getTaxiLocations(taxiLocationRequest)
-    }
+    fun getTaxiLocations(taxiLocationRequest: TaxiLocationRequest): TaxiLocationsResponse =
+        when (val validationResult = taxiLocationValidator.validate(taxiLocationRequest)) {
+            Validation.Valid -> callToInfrastructure(taxiLocationRequest)
+            is Validation.Invalid -> TaxiLocationsResponse.RequestNotValid(validationResult.message)
+        }
+
+    private fun callToInfrastructure(taxiLocationRequest: TaxiLocationRequest): TaxiLocationsResponse =
+        TaxiLocationsResponse.Success(taxiLocationPort.getTaxiLocations(taxiLocationRequest))
 }

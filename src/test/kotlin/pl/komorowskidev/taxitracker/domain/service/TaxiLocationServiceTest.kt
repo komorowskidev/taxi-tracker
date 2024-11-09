@@ -1,14 +1,18 @@
 package pl.komorowskidev.taxitracker.domain.service
 
-import org.junit.jupiter.api.Assertions.assertSame
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils
 import pl.komorowskidev.taxitracker.domain.model.TaxiLocationRequest
 import pl.komorowskidev.taxitracker.domain.ports.TaxiLocationPort
 import pl.komorowskidev.taxitracker.testutils.TestDataFactory
 import java.time.Instant
+import kotlin.random.Random
 
 class TaxiLocationServiceTest {
     private val taxiLocationPortMock: TaxiLocationPort = mock()
@@ -30,41 +34,40 @@ class TaxiLocationServiceTest {
     }
 
     @Test
-    fun `getTaxiLocations should validate request and return result from TaxiLocationPort`() {
+    fun `getTaxiLocations should return result from TaxiLocationPort when validator returns Valid`() {
         // given
-        val taxiId = "abc"
+        val taxiId = RandomStringUtils.randomAlphanumeric(20)
         val startTime = Instant.now()
-        val endTime = startTime.plusSeconds(10)
+        val endTime = startTime.plusSeconds(Random.nextLong(100))
         val taxiLocationRequest = TaxiLocationRequest(taxiId, startTime, endTime)
-        val taxiLocation1 = testDataFactory.createTaxiLocation(taxiId = "1")
-        val taxiLocation2 = testDataFactory.createTaxiLocation(taxiId = "2")
+        val taxiLocation1 = testDataFactory.createTaxiLocation(taxiId = RandomStringUtils.randomAlphanumeric(20))
+        val taxiLocation2 = testDataFactory.createTaxiLocation(taxiId = RandomStringUtils.randomAlphanumeric(20))
         val taxiLocations = listOf(taxiLocation1, taxiLocation2)
+        whenever(taxiLocationValidatorMock.validate(taxiLocationRequest)).thenReturn(Validation.Valid)
         whenever(taxiLocationPortMock.getTaxiLocations(taxiLocationRequest)).thenReturn(taxiLocations)
 
         // when
         val actual = taxiLocationService.getTaxiLocations(taxiLocationRequest)
 
         // then
-        verify(taxiLocationValidatorMock).validate(taxiLocationRequest)
-        assertSame(taxiLocations, actual)
+        assertThat(actual).isInstanceOf(TaxiLocationsResponse.Success::class.java)
+        assertThat((actual as TaxiLocationsResponse.Success).taxiLocations).isSameAs(taxiLocations)
     }
 
     @Test
-    fun `getTaxiLocations should validate request and return result from TaxiLocationPort when startTime equals endTime`() {
+    fun `getTaxiLocations should return RequestNotValid when validator returns Invalid`() {
         // given
-        val taxiId = "abc"
-        val time = Instant.now()
-        val taxiLocationRequest = TaxiLocationRequest(taxiId, time, time)
-        val taxiLocation1 = testDataFactory.createTaxiLocation(taxiId = "1")
-        val taxiLocation2 = testDataFactory.createTaxiLocation(taxiId = "2")
-        val taxiLocations = listOf(taxiLocation1, taxiLocation2)
-        whenever(taxiLocationPortMock.getTaxiLocations(taxiLocationRequest)).thenReturn(taxiLocations)
+        val taxiId = RandomStringUtils.randomAlphanumeric(20)
+        val startTime = Instant.now()
+        val endTime = startTime.plusSeconds(Random.nextLong(100))
+        val taxiLocationRequest = TaxiLocationRequest(taxiId, startTime, endTime)
+        whenever(taxiLocationValidatorMock.validate(taxiLocationRequest)).thenReturn(Validation.Invalid("test"))
 
         // when
         val actual = taxiLocationService.getTaxiLocations(taxiLocationRequest)
 
         // then
-        verify(taxiLocationValidatorMock).validate(taxiLocationRequest)
-        assertSame(taxiLocations, actual)
+        assertThat(actual).isInstanceOf(TaxiLocationsResponse.RequestNotValid::class.java)
+        verify(taxiLocationPortMock, never()).getTaxiLocations(any())
     }
 }
